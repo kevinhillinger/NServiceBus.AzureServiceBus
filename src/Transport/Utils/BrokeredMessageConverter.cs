@@ -1,6 +1,7 @@
 namespace NServiceBus.Azure.Transports.WindowsAzureServiceBus
 {
     using System;
+    using System.IO;
     using System.Linq;
     using Microsoft.ServiceBus.Messaging;
     using Settings;
@@ -11,7 +12,7 @@ namespace NServiceBus.Azure.Transports.WindowsAzureServiceBus
         public static TransportMessage ToTransportMessage(this BrokeredMessage message)
         {
             TransportMessage t;
-            var rawMessage = message.GetBody<byte[]>() ?? new byte[0];
+            var rawMessage = message.GetBody();
 
             if (message.Properties.Count > 0)
             {
@@ -42,7 +43,7 @@ namespace NServiceBus.Azure.Transports.WindowsAzureServiceBus
 
         public static BrokeredMessage ToBrokeredMessage(this TransportMessage message, PublishOptions options, ReadOnlySettings settings, Configure config)
         {
-            var brokeredMessage = message.Body != null ? new BrokeredMessage(message.Body) : new BrokeredMessage();
+            var brokeredMessage = message.Body != null ? new BrokeredMessage(new MemoryStream(message.Body)) : new BrokeredMessage();
 
             SetHeaders(message, options, settings, config, brokeredMessage);
 
@@ -58,7 +59,7 @@ namespace NServiceBus.Azure.Transports.WindowsAzureServiceBus
 
         public static BrokeredMessage ToBrokeredMessage(this TransportMessage message, SendOptions options, SettingsHolder settings, bool expectDelay, Configure config)
         {
-            var brokeredMessage = message.Body != null ? new BrokeredMessage(message.Body) : new BrokeredMessage();
+            var brokeredMessage = message.Body != null ? new BrokeredMessage(new MemoryStream(message.Body)) : new BrokeredMessage();
 
             SetHeaders(message, options, settings, config, brokeredMessage);
 

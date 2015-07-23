@@ -2,11 +2,22 @@ namespace NServiceBus.Azure.Transports.WindowsAzureServiceBus
 {
     using Logging;
     using System;
+    using System.IO;
     using System.Transactions;
     using Microsoft.ServiceBus.Messaging;
 
     static class BrokeredMessageExtensions
     {
+        public static byte[] GetBody(this BrokeredMessage message)
+        {
+            var memoryStream = new MemoryStream();
+            using (var stream = message.GetBody<Stream>())
+            {
+                stream.CopyTo(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
+
         public static bool SafeComplete(this BrokeredMessage msg)
         {
             try
